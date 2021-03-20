@@ -16,12 +16,16 @@ app.config['SQLALCHEMY_COMMIT_ON_TEARDOWN'] = True
 db = SQLAlchemy(app)
 auth = HTTPBasicAuth()
 
-
 class User(db.Model):
-    __tablename__ = 'users'
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(32), index=True)
-    password_hash = db.Column(db.String(128))
+    user_id = db.Column(db.Integer, primary_key=True)
+    user_name = db.Column(db.String(20), unique=True, nullable=False)  # how about uniqueness !!!!!!!!!!
+    user_department = db.Column(db.String(30), nullable=False)
+    user_email = db.Column(db.String(120), unique=True)
+    password = db.Column(db.String(80))
+    user_rights = db.Column(db.Integer)
+
+    def __repr__(self):
+        return f"User('{self.user_name}', '{self.user_department}')"
 
     def hash_password(self, password):
         self.password_hash = generate_password_hash(password)
@@ -42,18 +46,6 @@ class User(db.Model):
         except:
             return
         return User.query.get(data['id'])
-
-
-class User(db.Model):
-    user_id = db.Column(db.Integer, primary_key=True)
-    user_name = db.Column(db.String(20), unique=True, nullable=False)  # how about uniqueness !!!!!!!!!!
-    user_department = db.Column(db.String(30), nullable=False)
-    user_email = db.Column(db.String(120), unique=True)
-    password = db.Column(db.String(80))
-    user_rights = db.Column(db.Integer)
-
-    def __repr__(self):
-        return f"User('{self.user_name}', '{self.user_department}')"
 
 
 class Student(db.Model):
