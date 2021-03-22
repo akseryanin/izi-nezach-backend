@@ -1,0 +1,112 @@
+{% extends 'adminlte/lib/_main_sidebar.html' %}
+
+{% load static %}
+{% load adminlte_helpers %}
+
+{% block user_panel %}
+    <div class="user-panel">
+        <div class="pull-left image">
+            {#            <img src="{% avatar_url size=90 %}" class="img-circle" alt="User Image">#}
+            <img src="{% static 'vk.png' %}" class="img-circle" alt="User Image">
+
+        </div>
+        <div class="pull-left info" style="white-space: normal">
+            <p>{% firstof request.user.get_full_name request.user.username %}</p>
+        </div>
+    </div>
+{% endblock %}
+
+{% block nav_links_outer %}
+    {#    <li>#}
+    {#        <a href={% url "marks" %}>#}
+    {#            <i class="fa fa-paper-plane-o"></i> <span>Журнал</span>#}
+    {#        </a>#}
+    {#    </li>#}
+    {#    <li>#}
+    {#        <a href={% url "index" %}>#}
+    {#            <i class="fa fa-line-chart"></i>&nbsp;#}
+    {#            <span>#}
+    {#                Главная#}
+    {#            </span>#}
+    {#        </a>#}
+    {#    </li>#}
+    <li>
+        <a href={% url "students" %}>
+            <i class="fa fa-cab"></i>&nbsp;
+            <span>
+                Студенты
+            </span>
+        </a>
+    </li>
+    <li>
+        <a href={% url "events" %}>
+            <i class="fa fa-trophy"></i>&nbsp;
+            <span>
+                Мероприятия
+            </span>
+        </a>
+    </li>
+    <li class="treeview active">
+        <a href="#">
+            <i class="fa fa-archive"></i> <span>Журнал взвода</span>
+            <span class="pull-right-container">
+                <i class="fa fa-angle-left pull-right"></i>
+            </span>
+        </a>
+        <ul class="treeview-menu">
+            {% for squad in squad_list %}
+                <li class="treeview">
+                    <a href="#">
+                        <i class="fa fa-group"></i> <span>{{ squad.code }}</span>
+                        <span class="pull-right-container">
+                            <i class="fa fa-angle-left pull-right"></i>
+                        </span>
+                    </a>
+                    <ul class="treeview-menu">
+                        {% if squad.subjects %}
+                            {% for subj in squad.subjects %}
+                                <li>
+                                    <a href="{% url 'marks_squad' squad_code=squad.code subject_id=subj.id %}">
+                                        <i class="fa fa-tablet"></i> {{ subj.short }}
+                                    </a>
+                                </li>
+                            {% endfor %}
+                            <li>
+                                <a href="/admin">
+                                    <i class="fa fa-cogs"></i> изменить дисциплины
+                                </a>
+                            </li>
+                        {% else %}
+                            <li>
+                                <a href="/admin">
+                                    <i class="fa fa-plus"></i> добавить дисциплины
+                                </a>
+                            </li>
+                        {% endif %}
+                        <li>
+                            <a href="{% url 'squad_stats' squad_code=squad.code %}">
+                                <i class="fa fa-bar-chart"></i> статистика
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+            {% endfor %}
+        </ul>
+    </li>
+    <li>
+        <a href={% url "attendance" %}>
+            <i class="fa fa-check"></i>&nbsp;
+            <span>
+                Посещаемость
+            </span>
+        </a>
+    </li>
+    <li>
+        <a href="/admin">
+            <i class="fa fa-gears"></i>&nbsp;
+            <span>
+                Администрирование
+            </span>
+        </a>
+    </li>
+{% endblock nav_links_outer %}

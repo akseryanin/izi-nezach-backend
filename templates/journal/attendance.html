@@ -1,0 +1,174 @@
+{% extends 'base.html' %}
+
+{% include 'journal/sidebar.html' %}
+
+{% block content %}
+    <h2>
+        Строевая записка
+    </h2>
+
+
+
+    <div class="row">
+        <div class="col-xs-12">
+
+            <button class="btn pull-left" data-toggle="modal" data-target="#modalAddAttendance">
+                <i class="fa fa-plus"></i>
+                Добавить записку
+            </button>
+        </div>
+
+        <div class="col-md-6">
+            <table id="forms" class="table table-striped">
+                <thead>
+                <tr>
+                    <th>
+                        Взвод
+                        <div id="squad_select"></div>
+                    </th>
+                    <th>
+                        Дата
+                    </th>
+                    <th>
+                        По списку
+                    </th>
+                    <th>
+                        Отсутствуют
+                    </th>
+                    <th>
+                        Действия
+                    </th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for f in forms %}
+                    <tr>
+                        <td>{{ f.squad }}</td>
+                        <td data-sort="{{ f.datestr }}">{{ f.date | date:"d.m.Y" }}</td>
+                        <td>{{ f.students.all | length }}</td>
+                        <td>{{ f.absent }}</td>
+                        <td><a class="fa fa-edit" href="{% url 'attendance_edit' attendance_id=f.id %}"></a></td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+                {#            <tfoot>#}
+                {#            <tr>#}
+                {#                <th>#}
+                {#                    Взвод#}
+                {#                </th>#}
+                {#                <th>#}
+                {#                    Дата#}
+                {#                </th>#}
+                {#                <th>#}
+                {#                    Отсутствуют#}
+                {#                </th>#}
+                {#            </tr>#}
+                {#            </tfoot>#}
+            </table>
+        </div>
+    </div>
+    <div class="modal fade" id="modalAddAttendance" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header text-center">
+                    <h4 class="modal-title w-100 font-weight-bold">Строевая записка</h4>
+                </div>
+                <form action="/api/attendance/add" method="post">
+                    <div class="modal-body mx-3">
+                        {% csrf_token %}
+                        {{ form }}
+                        <div class="md-form mb-5">
+                            <label for="id_date">Дата</label>
+                            {% if restrictions.date_restricted %}
+                                <input placeholder="Выберите дату" name="date" type="text" id="id_date"
+                                       class="form-control" value="{{ restrictions.date | date:"d.m.Y" }}" readonly>
+                            {% else %}
+                                <input placeholder="Выберите дату" name="date" type="text" id="id_date"
+                                       class="form-control datepicker">
+                            {% endif %}
+                        </div>
+                        <div class="md-form mb-4">
+                            <label for="squad_code">Взвод</label>
+                            <select id="squad_code" name="squad_code">
+                                {% if restrictions %}
+                                    {% for squad in restrictions.squads %}
+                                        <option value="{{ squad.code }}">{{ squad.code }}</option>
+                                    {% endfor %}
+                                {% else %}
+                                    {% for squad in squad_list %}
+                                        <option value="{{ squad.code }}">{{ squad.code }}</option>
+                                    {% endfor %}
+                                {% endif %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="modal-footer d-flex justify-content-center">
+                        {% if restrictions %}
+                            {% if restrictions.can_edit %}
+                                <button class="btn btn-default" type="submit" id="addAttendanceSubmit">ОК</button>
+                            {% else %}
+                                <button class="btn btn-default" type="submit" id="addAttendanceSubmit" disabled>ОК
+                                </button>
+                            {% endif %}
+                        {% else %}
+                            <button class="btn btn-default" type="submit" id="addAttendanceSubmit">ОК</button>
+                        {% endif %}
+                        <button class="btn btn-default" data-dismiss="modal">Отмена</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block javascript %}
+    {{ block.super }}
+    <script>
+        $(function () {
+            $('.datepicker').datetimepicker(
+                {
+                    format: 'DD-MM-YYYY',
+                    locale: 'ru',
+                }
+            );
+        });
+    </script>
+
+    {#    {{ block.super }}#}
+    <script>
+        $(document).ready(function () {
+            let select = {};
+            $('#forms').DataTable({
+                initComplete: function () {
+                    this.api().columns().every(function () {
+                        let column = this;
+                        if (!(column[0][0] === 0)) {
+                            return;
+                        }
+                        select = $('<select><option value=""></option></select>')
+                            .appendTo($(column.header()))
+                            .on('change', function () {
+                                let val = $.fn.dataTable.util.escapeRegex(
+                                    $(this).val()
+                                );
+
+                                column
+                                    .search(val ? '^' + val + '$' : '', true, false)
+                                    .draw();
+                            });
+
+                        column.data().unique().sort().each(function (d, j) {
+                            select.append('<option value="' + d + '">' + d + '</option>')
+                        });
+                    });
+                },
+                paging: false,
+                lengthChange: false,
+                searching: true,
+                ordering: true,
+            });
+        });
+
+    </script>
+{% endblock %}

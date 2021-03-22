@@ -1,0 +1,231 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% load dict_filters %}
+{% block content %}
+    <h2>
+        <form action="{% url 'squad_stats' squad_code %}" method="get">
+            {{ form }}
+            <span style="float: left;">
+            &nbsp;&nbsp;Итоги взвода {{ squad_code }} за период с &nbsp;
+            </span>
+            <input placeholder="{{ from_date|date:"d-m-Y" }}" style="width: 100px; float: left;" name="from" type="text" id="id_date" class="form-control datepicker">
+            <span style="float: left;">
+            &nbsp;по&nbsp;
+            </span>
+            <input placeholder="{{ to_date|date:"d-m-Y" }}" style="width: 100px; float: left;" name="to" type="text" id="id_date" class="form-control datepicker">
+            <br>
+            <div class="modal-footer d-flex justify-content-center" style="text-align: left;">
+                <button class="btn btn-default" type="submit" id="addPenaltySubmit">Искать</button>
+            </div>
+        </form>
+    </h2>
+
+
+<div class="row">
+    <div class="col-md-12">
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <th colspan="2">
+
+                </th>
+                    <th colspan="{{ total.avg_marks|length }}" class="text-center">
+                        Текущие&nbsp;оценки
+                    </th>
+                    <th colspan="4" class="text-center">
+                        Пропуски&nbsp;занятий
+                    </th>
+                    <th colspan="2" class="text-center">
+                        Дисциплина
+                    </th>
+            </tr>
+            <tr>
+                    {#<th>номер</th>#}
+                    <th class="col-min">отделение</th>
+                <th>ФИО</th>
+                {% for subj in subjects %}
+                <th class="text-center">{{ subj.short }}</th>
+                    <th class="text-center">{{ subj.short }} (ср.) </th>
+                {% endfor %}
+                    <th class="col-min">Ув.</th>
+                    <th class="col-min">Неув.</th>
+                    <th class="col-min">Наряд</th>
+                    <th class="col-min">Всего</th>
+                    <th class="col-min">Взысканий</th>
+                    <th class="col-min">Поощрений</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for unit in unit_rows %}
+            {% for row in unit.rows %}
+            <tr>
+                <td>
+                    {{ row.student.unit }}
+                </td>
+                <td>
+                    <a href="{% url 'student' student_id=row.student.id %}"> {{ row.student.short }}
+                    </a>
+                </td>
+                {% for mark in row.avg_marks %}
+                                <td class="col-min text-center">
+                    {% if mark %}
+                    {{ mark|floatformat:2 }}
+                    {% else %}
+                    -
+                    {% endif %}
+                </td>
+                {% endfor %}
+                            <td>
+                                {{ row.attendance.absent }}
+                            </td>
+                            <td>
+                                {{ row.attendance.truant }}
+                            </td>
+                            <td>
+                                {{ row.attendance.duty }}
+                            </td>
+                            <td>
+                                {{ row.attendance.total }}
+                            </td>
+                            <td>
+                                {{ row.total_reprimands }}
+                            </td>
+                            <td>
+                                {{ row.total_promotions }}
+                            </td>
+            </tr>
+            {% endfor %}
+            <tr>
+                <td colspan="2">
+                    {# <b>#}
+                    Итого по {{ unit.unit }} отделению:
+                    {# </b>#}
+                </td>
+                {% for total in unit.subtotal.avg_marks %}
+                <td class="text-center">
+                    <b>
+                        {{ total|floatformat:2 }}
+                    </b>
+                </td>
+                {% endfor %}
+                        {% with unit.subtotal.attendance as att %}
+                            <td>
+                                <strong>{{ att.absent }}</strong>
+                            </td>
+                            <td>
+                                <strong>{{ att.truant }}</strong>
+                            </td>
+                            <td>
+                                <strong>{{ att.duty }}</strong>
+                            </td>
+                            <td>
+                                <strong>{{ att.total }}</strong>
+                            </td>
+                        {% endwith %}
+                        <td>
+                            <strong>{{ unit.subtotal.total_reprimands }}</strong>
+                        </td>
+                        <td>
+                            <strong>{{ unit.subtotal.total_promotions }}</strong>
+                        </td>
+            </tr>
+            {% endfor %}
+            <tr>
+                <td colspan="2">
+                    <b>
+                        Итого по взводу:
+                    </b>
+                </td>
+                {% for t in total.avg_marks %}
+                <td class="text-center">
+                    {{ t|floatformat:2 }}
+                </td>
+                {% endfor %}
+                    {% with total.attendance as att %}
+                        <td>
+                            <strong>{{ att.absent }}</strong>
+                        </td>
+                        <td>
+                            <strong>{{ att.truant }}</strong>
+                        </td>
+                        <td>
+                            <strong>{{ att.duty }}</strong>
+                        </td>
+                        <td>
+                            <strong>{{ att.total }}</strong>
+                        </td>
+                    {% endwith %}
+                    <td>
+                        <strong>{{ total.total_reprimands }}</strong>
+                    </td>
+                    <td>
+                        <strong>{{ total.total_promotions }}</strong>
+                    </td>
+            </tr>
+            </tbody>
+        </table>
+{#        {% for unit in units %}#}
+{#        <div class="col-xs- 4 col-sm-4 col-md-4 col-lg-4">#}
+{#            <div class="box box-solid">#}
+{#                <div class="box-header with-border">#}
+{#                    <h3 class="box-title">Оценки по дисциплинам ({{unit.num}} отделение)</h3>#}
+{#                </div>#}
+{#                <div class="box-body">#}
+{#                    <div class="table-responsive">#}
+{#                        <table class="table table-striped">#}
+{#                            {% if not unit %}#}
+{#                            <strong> нет оценок</strong>#}
+{#                            {% else %}#}
+{#                            <tr>#}
+{#                                <td></td>#}
+{#                                <td>1</td>#}
+{#                                <td>2</td>#}
+{#                                <td>3</td>#}
+{#                                <td>4</td>#}
+{#                                <td>5</td>#}
+{#                                <td>6</td>#}
+{#                            </tr>#}
+{#                            {% for s in unit.val %}#}
+{#                            <tr>#}
+{#                                <td class="col-xs-2 col-sm-2 col-md-2 col-lg-2">#}
+{#                                    <strong>#}
+{#                                        {{ s.subject }}#}
+{#                                    </strong>#}
+{#                                </td>#}
+{#                                {% for i in '123456'|make_list %}#}
+{#                                {% with avg=s.avgs|get_exact_sem:i %}#}
+{#                                <td class="col-xs-1 col-sm-1 col-md-1 col-lg-1">#}
+{#                                    {% if avg %}#}
+{#                                    {{ avg.mark }}#}
+{#                                    {% else %}#}
+{#                                    -#}
+{#                                    {% endif %}#}
+{#                                </td>#}
+{#                                {% endwith %}#}
+{#                                {% endfor %}#}
+{#                            </tr>#}
+{#                            {% endfor %}#}
+{#                            {% endif %}#}
+{#                        </table>#}
+{#                    </div>#}
+{#                </div>#}
+{#            </div>#}
+{#        </div>#}
+{#        {% endfor %}#}
+    </div>
+</div>
+{% endblock %}
+
+{% block javascript %}
+    {{ block.super }}
+    <script>
+        $(function () {
+            $('.datepicker').datetimepicker(
+                {
+                    format: 'DD-MM-YYYY',
+                    locale: 'ru',
+                }
+            );
+        });
+    </script>
+{% endblock %}

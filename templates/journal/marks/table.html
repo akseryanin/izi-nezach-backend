@@ -1,0 +1,165 @@
+{% block table %}
+    <button class="btn pull-right" data-toggle="modal" data-target="#modalLoginForm"><i class="fa fa-plus"></i> Добавить
+        столбец
+    </button>
+    <table id="marks" class="table table-striped">
+        <thead>
+        <tr>
+            <th class="col-xs-12 col-lg-12">
+                {{ subject.name }}
+            </th>
+            {% for x in header %}
+                <th>{{ x.display }}
+                </th>
+            {% endfor %}
+        </tr>
+        </thead>
+        <tbody>
+        {% for row in cells %}
+            <tr>
+                {% for elem in row %}
+                    {% if forloop.counter == 1 %}
+                        <th class="col-xs-12 col-lg-12">
+                            <a href="{% url 'student' student_id=elem.id %}">{{ elem.display }}</a>
+                        </th>
+                    {% else %}
+                        <td class="col-min">
+                            <label>
+                                <input class="mycell"
+                                       type="text"
+
+                                        {% if elem.val == -1 %}
+                                       value="П"
+                                       disabled
+                                        {% elif elem.val == -2 %}
+                                       value="У"
+                                       disabled
+                                        {% elif elem.val == -3 %}
+                                       value="Н"
+                                       disabled
+                                        {% elif elem.val == None %}
+                                       value=""
+                                        {% else %}
+                                       value="{{ elem.val }}"
+                                        {% endif %}
+
+                                       style="width:24px; height:24px;text-align: center;"
+                                       name="{'x_index':{{ forloop.counter0 }}, 'y_key_id':{{ row.0.id }}, 'mark_id': '{{ elem.id }}' }"
+                                />
+                            </label>
+                        </td>
+                    {% endif %}
+                {% endfor %}
+            </tr>
+        {% endfor %}
+        </tbody>
+        <tfoot>
+        <tr>
+            <th></th>
+            {% for x in header %}
+                {% if x.comment %}
+                    {#                    <th style="transform: rotate(90deg); padding-right: -15px;"> #}
+                    <th>
+                        {% if not x.exam_id %}
+                            {{ x.comment }}
+                        {% else %}
+                            <a href="/admin/journal/exam/{{ x.exam_id }}/change">{{ x.comment }} ({{ x.exam_name }})</a>
+                        {% endif %}
+                    </th>
+                {% else %}
+                    <th>{{ x.display }}
+                    </th>
+                {% endif %}
+            {% endfor %}
+        </tr>
+
+        </tfoot>
+    </table>
+
+{% endblock %}
+
+{% block modal %}
+    <div class="modal fade" id="modalLoginForm" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header text-center">
+                    <h4 class="modal-title w-100 font-weight-bold">Добавить столбец</h4>
+                </div>
+                <form action="/api/lessons/add" method="post">
+                    <div class="modal-body mx-3">
+                        {% csrf_token %}
+                        {{ form }}
+                        <div class="md-form mb-5">
+                            <label data-error="wrong" data-success="right" for="att_id">Дата</label>
+                            {#                            <input placeholder="Выберите дату" name="date" type="text" id="id_date" class="form-control datepicker">#}
+
+                            <select id="attendance_id" name="attendance_id">
+                                {% for t in attendance_list %}
+                                    <option
+                                            value="{{ t.id }}"
+                                    >{{ t.date|date:"d-m-Y" }}</option>
+                                {% endfor %}
+                            </select>
+
+
+                        </div>
+                        <div class="md-form mb-4">
+                            <label data-error="wrong" data-success="right" for="id_name">Название</label>
+                            <input type="text" id="id_name" name="name" class="form-control">
+
+                            <label for="id_squad_code"></label><input type="text" id="id_squad_code" name="squad_code"
+                                                                      value="{{ squad_code }}" hidden>
+                            <label for="id_subject_id"></label><input type="number" id="id_subject_id" name="subject_id"
+                                                                      value="{{ subject_id }}" hidden>
+                        </div>
+                        {% if exam_list %}
+                            <button class="btn btn-primary" type="button" data-toggle="collapse"
+                                    data-target="#collapseExample" aria-expanded="false"
+                                    aria-controls="collapseExample">
+                                Добавить связь с экзаменом
+                            </button>
+                            <div class="collapse" id="collapseExample">
+                                <div class="card card-body">
+                                    <label for="exam">Экзамен</label>
+                                    <select id="exam_id" name="exam_id">
+                                        <option value="" selected>Выберите экзамен</option>
+                                        {% for exam in exam_list %}
+                                            <option value="{{ exam.id }}">{{ exam.display }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+
+                        {% else %}
+                            <button class="btn btn-primary disabled" type="button" data-toggle="tooltip"
+                                    title="Для этого предмета не создано ни одного экзамена"
+                                    data-target="#collapseExample" aria-expanded="false">
+                                Добавить связь с экзаменом
+                            </button>
+                        {% endif %}
+                    </div>
+                    <div class="modal-footer d-flex justify-content-center">
+                        {#                    TODO make proper form     #}
+                        <button class="btn btn-default" type="submit" id="lessonFormSubmit">ОК</button>
+                        <button class="btn btn-default" data-dismiss="modal">Отмена</button>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascript %}
+    <script>
+        $(function () {
+            $('.datepicker').datetimepicker(
+                {
+                    format: 'DD-MM-YYYY',
+                }
+            );
+        });
+    </script>
+{% endblock %}
+

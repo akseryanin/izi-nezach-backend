@@ -1,0 +1,606 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load cropping %}
+{% include 'journal/sidebar.html' %}
+
+{% load dict_filters %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+            <div class="box box-solid">
+                <div class="box-header with-border">
+                    <h3 class="box-title">Информация</h3>
+                </div>
+                <div class="box-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            {% if student.pic %}
+                                <img src="{% cropped_thumbnail student 'cropping' scale=1 %}" class="img-responsive">
+                                <div class="imgButton" style="margin-top:10px;">
+                                    <a href="/admin/journal/student/{{ student.id }}/change/">
+                                        <button>Изменить фото</button>
+                                    </a>
+                                </div>
+                            {% else %}
+                                <img src="{% static 'none.png' %}" width="160" height="190" class="img-responsive">
+                                <div class="imgButton" style="margin-top:10px;">
+                                    <a href="/admin/journal/student/{{ student.id }}/change/">
+                                        <button>Добавить фото</button>
+                                    </a>
+                                </div>
+                            {% endif %}
+                            <div class="imgButton" style="margin-top:10px;">
+                                <a href="/admin/journal/student/{{ student.id }}/change/" style="font-size: 13px;">
+                                    <u>Изменить профиль</u>
+                                </a>
+                            </div>
+                            {% if info %}
+                                <div class="imgButton" style="margin-top:10px;">
+                                    <a href="/admin/journal/personalinfo/{{ info.id }}/change/" style="font-size: 13px;">
+                                        <u>Изменить данные</u>
+                                    </a>
+                                </div>
+                            {% else %}
+                                <div class="imgButton" style="margin-top:10px;">
+                                    <a href="/admin/journal/personalinfo/add/" style="font-size: 13px;">
+                                        <u>Добавить данные</u>
+                                    </a>
+                                </div>
+
+                            {% endif %}
+                        </div>
+                        <div class="col-md-8">
+                            <div class="table-responsive">
+                                <table class="table table-striped">
+                                    <tr>
+                                        <td class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
+                                            <strong>
+                                                Взвод
+                                            </strong>
+                                        </td>
+                                        <td>
+                                            {{ student.squad.code }}
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
+                                            <strong>
+                                                ФИО
+                                            </strong>
+                                        </td>
+                                        <td>
+                                            {{ student.last_name }} {{ student.first_name }} {{ student.middle_name }}
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
+                                            <strong>
+                                                Номер телефона
+                                            </strong>
+                                        </td>
+                                        <td>
+                                            {{ info.phone|default_if_none:"-" }}
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
+                                            <strong>
+                                                Факультет
+                                            </strong>
+                                        </td>
+                                        <td>
+                                            {{ info.faculty|default_if_none:"-" }}
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
+                                            <strong>
+                                                Образовательная программа
+                                            </strong>
+                                        </td>
+                                        <td>
+                                            {{ info.program|default_if_none:"-" }}
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
+                                            <strong>
+                                                Группа
+                                            </strong>
+                                        </td>
+                                        <td>
+                                            {{ info.group|default_if_none:"-" }}
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+            <div class="box box-solid">
+                <div class="box-header with-border">
+                    <h3 class="box-title">Личные данные</h3>
+                </div>
+                <div class="box-body">
+                    <div class="table-responsive">
+                        {% if info %}
+                            <table class="table table-striped">
+                                <tr>
+                                    <td class="col-xs-2 col-lg-2">
+                                        <strong>
+                                            Паспорт
+                                        </strong>
+                                    </td>
+                                    <td>
+                                        {{ info.passport_code }} {{ info.passport_number }},
+                                        выдан {{ info.passport_issued_date|date:"Y-m-d" }} {{ info.passport_issued }}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Адрес регистрации</strong></td>
+                                    <td>{{ info.reg_address }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Адрес проживания</strong></td>
+                                    <td>{{ info.fact_address }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Номер телефона</strong></td>
+                                    <td>{{ info.phone|default_if_none:"-" }}</td>
+                                </tr>
+                            </table>
+                            <table class="table table-striped">
+                                <thead>
+                                <tr>
+                                    <th></th>
+                                    <th>Начало обучения</th>
+                                    <th>Окончание обучения</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr>
+                                    <td>Дата</td>
+                                    <td>{{ info.end_date|date:"Y-m-d" }}</td>
+                                    <td>{{ info.start_date|date:"Y-m-d" }}</td>
+                                </tr>
+                                <tr>
+                                    <td>Приказ</td>
+                                    <td>{{ info.order_deduction|default_if_none:"-" }}</td>
+                                    <td>{{ info.order_admission|default_if_none:"-" }}</td>
+                                </tr>
+                                </tbody>
+                            </table>
+                            <table class="table table-striped">
+                                <tr>
+                                    <td class="col-xs-2 col-lg-2"><strong>Характеристика</strong></td>
+                                </tr>
+                                <tr>
+                                    <td>2 курс:</td>
+                                    <td>{{ info.characteristic_first_year }}</td>
+                                </tr>
+                                <tr>
+                                    <td>3 курс:</td>
+                                    <td>{{ info.characteristic_second_year }}</td>
+                                </tr>
+                                <tr>
+                                    <td>4 курс:</td>
+                                    <td>{{ info.characteristic_third_year }}</td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <strong>
+                                            Категория годности
+                                        </strong>
+                                    </td>
+                                    <td>
+                                        {{ info.conclusion }}
+                                    </td>
+                                </tr>
+                            </table>
+                        {% else %}
+                            не заполнено
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+            <div class="box box-solid">
+                <div class="box-header with-border">
+                    <h3 class="box-title">Оценки по дисциплинам</h3>
+                </div>
+                <div class="box-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            {% if not avg_marks %}
+                                <strong> нет оценок</strong>
+                            {% else %}
+                                <tr>
+                                    <td></td>
+                                    <td>Текущая</td>
+                                    <td>3</td>
+                                    <td>4</td>
+                                    <td>5</td>
+                                    <td>6</td>
+                                    <td>7</td>
+                                    <td>8</td>
+                                </tr>
+                                {% for st in avg_marks %}
+                                    <tr>
+                                        <td class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
+                                            <strong>
+                                                {{ st.short }}
+                                            </strong>
+                                        </td>
+                                        <td class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
+                                            {% if st.avg %}
+                                                {{ st.avg|floatformat:2 }}
+                                            {% else %}
+                                                нет оценок
+                                            {% endif %}
+                                        </td>
+                                        {% with name=st.short %}
+                                            {% for i in '345678'|make_list %}
+                                                {% with sem=all_exams|get_dict_value:name|get_exact_sem:i %}
+                                                    <td class="col-xs-1 col-sm-1 col-md-1 col-lg-1">
+                                                        {% if sem %}
+                                                            {{ sem.marks }}
+                                                        {% else %}
+                                                            -
+                                                        {% endif %}
+                                                    </td>
+                                                {% endwith %}
+                                            {% endfor %}
+                                        {% endwith %}
+                                    </tr>
+                                {% endfor %}
+                            {% endif %}
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="modal fade" id="modalAddDuty" tabindex="-1" role="dialog" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header text-center">
+                            <h4 class="modal-title w-100 font-weight-bold">Оценка за дежурство</h4>
+                        </div>
+                        <form action="{% url 'duty_add' %}" method="post">
+                            <div class="modal-body mx-3">
+                                {% csrf_token %}
+                                {{ form }}
+                                <div class="md-form mb-5">
+                                    <label for="attendance_id">Дата</label>
+                                    <select id="attendance_id" name="attendance_id">
+                                        {% for att in all_attendances %}
+                                            <option value="{{ att.id }}">{{ att.date }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="md-form mb-4">
+                                    <label for="duty_type">Тип дежурствa</label>
+                                    <select id="duty_type" name="duty_type">
+                                        {% for opt in duty_options %}
+                                            <option value="{{ opt.code }}">{{ opt.label }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="md-form mb-5">
+                                    <label for="id_mark">Оценка</label>
+                                    <input placeholder="Оценка" name="mark" type="number" max="5" min="1" id="id_mark"
+                                           class="form-control">
+                                </div>
+                                <div class="md-form mb-5" style="visibility: hidden">
+                                    <input value={{ student.id }} name="student_id" type="text">
+                                </div>
+                                <div class="md-form mb-5">
+                                    <input placeholder="Комментарий" name="comment" type="text" id="id_comment"
+                                           class="form-control">
+                                </div>
+                            </div>
+                            <div class="modal-footer d-flex justify-content-center">
+                                <button class="btn btn-default" type="submit" id="addDutySubmit">Сохранить</button>
+                                <button class="btn btn-default" data-dismiss="modal">Отмена</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="box box-solid">
+                <div class="box-header with-border">
+                    <h3 class="box-title">Оценки за дежурство</h3>
+                    <button class="pull-right" data-toggle="modal" data-target="#modalAddDuty"><i
+                            class="fa fa-plus"></i></button>
+                </div>
+                <div class="box-body">
+                    <h4>Средняя оценка</h4>
+                    <table class="table table-striped">
+                        <tr>
+                            {% for d in duty_stats %}
+                                <td class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
+                                    <strong>
+                                        {{ d.label }}
+                                    </strong>
+                                </td>
+                                <td>
+                                    {{ d.count }}
+                                </td>
+                            {% endfor %}
+                        </tr>
+                    </table>
+                    <p>
+                    <div class="table-responsive">
+                        {% if not duties %}
+                            отсутствуют
+                        {% else %}
+                            <table class="table table-striped">
+                                <thead>
+                                <tr>
+                                    <th class="col-xs-3 col-lg-2">Тип</th>
+                                    <th>Комментарий</th>
+                                    <th>Оценка</th>
+                                    <th>Дата</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% for d in duties %}
+                                    <tr>
+                                        <td>
+                                            {{ d.russian_type }}
+                                        </td>
+                                        <td>
+                                            {{ d.comment }}
+                                        </td>
+                                        <td>
+                                            {{ d.mark }}
+                                        </td>
+                                        <td>
+                                            {{ d.attendance.date|date:"Y-m-d" }}
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="box box-solid">
+                <div class="box-header with-border">
+                    <h3 class="box-title">Дисциплинарные практики</h3>
+                    <button class="pull-right" data-toggle="modal" data-target="#modalAddPenalty"><i
+                            class="fa fa-plus"></i></button>
+                </div>
+                <div class="box-body">
+                    <table class="table table-striped">
+                        <tr>
+                            {% for p in penalty_stats %}
+                                <td class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
+                                    <strong>
+                                        {{ p.label }}
+                                    </strong>
+                                </td>
+                                <td>
+                                    {{ p.count }}
+                                </td>
+                            {% endfor %}
+                        </tr>
+                    </table>
+                    <div class="table-responsive">
+                        {% if not penalties %}
+                            отсутствуют
+                        {% else %}
+                            <table class="table table-striped">
+                                <thead>
+                                <tr>
+                                    <th class="col-xs-3 col-lg-2">Тип</th>
+                                    <th>Комментарий</th>
+                                    <th>Дата</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% for p in penalties %}
+                                    <tr>
+                                        <td>
+                                            {{ p.russian_type }}
+                                        </td>
+                                        <td>
+                                            {{ p.comment }}
+                                        </td>
+                                        <td>
+                                            {{ p.attendance.date|date:"Y-m-d" }}
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+            <div class="box box-solid">
+                <div class="box-header with-border">
+                    <h3 class="box-title">Посещаемость</h3>
+                </div>
+                <div class="box-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <tr>
+                                <td class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
+                                    <strong>
+                                        Всего пропусков
+                                    </strong>
+                                </td>
+                                <td>
+                                    {{ attendance_stats.total }}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
+                                    <strong>
+                                        Неуважительная причина
+                                    </strong>
+                                </td>
+                                <td>
+                                    {{ attendance_stats.truant }}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
+                                    <strong>
+                                        Уважительная причина
+                                    </strong>
+                                </td>
+                                <td>
+                                    {{ attendance_stats.absent }}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
+                                    <strong>
+                                        В наряде
+                                    </strong>
+                                </td>
+                                <td>
+                                    {{ attendance_stats.duty }}
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="box box-solid">
+                <div class="box-header with-border">
+                    <h3 class="box-title">Участие в мероприятиях</h3>
+                    <button class="pull-right" data-toggle="modal" data-target="#modalAddEvent"><i
+                            class="fa fa-plus"></i></button>
+                </div>
+                <div class="box-body">
+                    <div class="table-responsive">
+                        {% if not stud_events %}
+                            отсутствуют
+                        {% else %}
+                            <table class="table table-striped">
+                                <thead>
+                                <tr>
+                                    <th>Название</th>
+                                    <th class="col-xs-2 col-lg-4">Дата</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% for event in stud_events %}
+                                    <tr>
+                                        <td>
+                                            {{ event.name }}
+                                        </td>
+                                        <td>
+                                            {{ event.date }}
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal fade" id="modalAddEvent" tabindex="-1" role="dialog" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header text-center">
+                            <h4 class="modal-title w-100 font-weight-bold">Участие в мероприятиях</h4>
+                        </div>
+                        <form action="{% url 'event_set' %}" method="post">
+                            <div class="modal-body mx-3">
+                                {% csrf_token %}
+                                {{ form }}
+                                <div class="md-form mb-4">
+                                    <label for="event_type">Мероприятие</label>
+                                    <select id="event_id" name="event_id">
+                                        {% for event in available_events %}
+                                            <option value="{{ event.id }}">{{ event.name }}, {{ event.date }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="md-form mb-5" style="visibility: hidden">
+                                    <input value={{ student.id }} name="student_id" type="text">
+                                </div>
+                            </div>
+                            <div class="modal-footer d-flex justify-content-center">
+                                <button class="btn btn-default" type="submit" id="addEventSubmit">Сохранить</button>
+                                <button class="btn btn-default" data-dismiss="modal">Отмена</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal fade" id="modalAddPenalty" tabindex="-1" role="dialog" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header text-center">
+                            <h4 class="modal-title w-100 font-weight-bold">Дисциплинарная практика</h4>
+                        </div>
+                        <form action="{% url 'penalty_add' %}" method="post">
+                            <div class="modal-body mx-3">
+                                {% csrf_token %}
+                                {{ form }}
+                                <div class="md-form mb-5">
+                                    <label for="attendance_id">Дата</label>
+                                    <select id="attendance_id" name="attendance_id">
+                                        {% for att in all_attendances %}
+                                            <option value="{{ att.id }}">{{ att.date }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="md-form mb-4">
+                                    <label for="penalty_type">Тип взыскания</label>
+                                    <select id="penalty_type" name="penalty_type">
+                                        {% for opt in penalty_options %}
+                                            <option value="{{ opt.code }}">{{ opt.label }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="md-form mb-5">
+                                    <input placeholder="Комментарий" name="comment" type="text" id="id_comment"
+                                           class="form-control">
+                                </div>
+                                <div class="md-form mb-5" style="visibility: hidden">
+                                    <input value={{ student.id }} name="student_id" type="text">
+                                </div>
+                            </div>
+                            <div class="modal-footer d-flex justify-content-center">
+                                <button class="btn btn-default" type="submit" id="addPenaltySubmit">Сохранить</button>
+                                <button class="btn btn-default" data-dismiss="modal">Отмена</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+{% endblock %}
+{% block javascript %}
+    {{ block.super }}
+    <script>
+        $(function () {
+            $('.datepicker').datetimepicker(
+                {
+                    format: 'DD-MM-YYYY',
+                }
+            )
+        });
+
+    </script>
+{% endblock %}

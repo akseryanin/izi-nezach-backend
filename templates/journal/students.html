@@ -1,0 +1,108 @@
+{% extends 'base.html' %}
+
+{% include 'journal/sidebar.html' %}
+
+
+{% block content %}
+
+    <div class="row">
+
+        <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
+            <div class="box box-solid">
+                <div class="box-header with-border">
+                    <h3 class="box-title">Список студентов</h3>
+                </div>
+                <div class="box-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped" id="students_table">
+                            <thead>
+                            <tr>
+                                <th>
+                                    Взвод
+                                    <div id="squad_select"></div>
+                                </th>
+                                <th>Фамилия</th>
+                                <th>Имя</th>
+                                <th>Отчество</th>
+                                <td>профиль</td>
+                            </tr>
+                            </thead>
+                            <tbody>
+
+                            {% for student in students %}
+                                <tr {% if student.deducted %} style="color: darkred" title="Закончил обучение"  {% endif %}>
+                                    <td>
+                                        {{ student.squad.code }} &nbsp;
+                                    </td>
+                                    <td>
+                                        {{ student.last_name }} &nbsp;
+                                    </td>
+                                    <td>
+                                        {{ student.first_name }} &nbsp;
+                                    </td>
+                                    <td>
+                                        {{ student.middle_name }} &nbsp;
+                                    </td>
+                                    <td>
+                                        <a href="{% url 'student' student_id=student.id %}"> профиль </a>
+                                    </td>
+                                </tr>
+                                {#            {{ student.id }}#}
+                            {% endfor %}
+                            </tbody>
+                            <tfoot>
+                            <tr>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+
+{% block javascript %}
+    {{ block.super }}
+    <script>
+        $(document).ready(function () {
+            let select = {};
+            $('#students_table').DataTable({
+                initComplete: function () {
+                    this.api().columns().every(function () {
+                        let column = this;
+                        if (!(column[0][0] === 0)) {
+                            return;
+                        }
+                        select = $('<select><option value=""></option></select>')
+                            .appendTo($(column.header()))
+                            .on('change', function () {
+                                let val = $.fn.dataTable.util.escapeRegex(
+                                    $(this).val()
+                                );
+
+                                column
+                                    .search(val ? '^' + val + '$' : '', true, false)
+                                    .draw();
+                            });
+
+                        column.data().unique().sort().each(function (d, j) {
+                            select.append('<option value="' + d + '">' + d + '</option>')
+                        });
+                    });
+                },
+                paging: false,
+                lengthChange: false,
+                searching: true,
+                ordering: true,
+            });
+        });
+
+    </script>
+{% endblock %}

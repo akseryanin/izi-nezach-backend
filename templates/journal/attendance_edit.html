@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h2>
+        Строевая записка взвода {{ squad_code }} от {{ date|date:"d-m-Y"}}
+    </h2>
+
+    <div class="row">
+        <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+            <div class="box box-solid">
+                <div class="box-header with-border">
+                    <h3 class="box-title">Список студентов</h3>&#8195;&#8195;<a class="fa fa-edit" href="/admin/journal/attendance/{{ attendance_id }}/change/"></a>
+                </div>
+                <div class="box-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped" id="students_table">
+                            <thead>
+                            <tr>
+                                <th>Взвод</th>
+                                <th>Студент</th>
+                                <th>Статус</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+
+                            {% for s in students %}
+                                <tr>
+                                    <td>
+                                        {{ s.student.squad.code }} &nbsp;
+                                    </td>
+                                    <td>
+                                        {{ s.student.short }}
+                                    </td>
+                                    <td>
+                                        <form action="/api/attendance/set" method="post">
+                                            {% csrf_token %}
+                                            {{ form }}
+                                            <input hidden type="number" value="{{ s.student.id }}" name="student_id" id="student_id">
+                                            <input hidden type="number" value="{{ attendance_id }}" name="attendance_id" id="attendance_id">
+                                            <select id="attendance_type" name="attendance_type" onchange="this.form.submit()">
+                                                {% for t in attendance_types %}
+                                                    <option
+                                                            value="{{ t.value }}"
+                                                            {% if t.value == s.value %}
+                                                            selected
+                                                            {% endif %}
+                                                    >{{ t.name }}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </form>
+                                        {#                                        <a href="/journal/students/{{ student.id }}"> профиль </a>#}
+                                    </td>
+                                </tr>
+                                {#            {{ student.id }}#}
+                            {% endfor %}
+                            </tbody>
+                            <tfoot>
+                            <tr>
+
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+

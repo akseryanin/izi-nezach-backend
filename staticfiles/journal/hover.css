@@ -1,0 +1,25 @@
+.bg {
+    background-color: #5897fb !important;
+}
+
+.mycell {
+
+}
+
+.imgButton{
+    text-align:center;
+    margin: 10px;
+}
+
+td {
+    width: auto;
+}
+
+td.col-min {
+    width: 1%;
+    white-space: nowrap;
+}
+th.col-min {
+    width: 1%;
+    white-space: nowrap;
+}

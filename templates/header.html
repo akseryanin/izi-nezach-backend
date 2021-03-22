@@ -1,0 +1,11 @@
+{% extends 'adminlte/lib/_main_header.html' %}
+{% load static %}
+
+
+{% block logo_text %}ВУЦ{% endblock logo_text %}
+
+{% block logo_text_small %}<b>ВУЦ</b>{% endblock logo_text_small %}
+
+{% block logo_href %}{% url 'index' %}{% endblock logo_href %}
+
+{% block logout_url %}/admin/logout/{% endblock logout_url %}

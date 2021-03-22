@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+
+{% csrf_token %}
+{% load static %}
+
+{% static 'journal/hover.css' %}
+
+{% block content %}
+    {#    {% if cells and header and y_keys %}#}
+    {#        all keys present#}
+    {#    {% else %}#}
+    {#        some keys not present#}
+    {#    {% endif %}#}
+    {% include 'journal/marks/table.html' %}
+    {#    {% for mark in marks %}#}
+    {#        <li> {{ mark.id }} {{ mark.date }} {{ mark.val }}#}
+    {#            {{ mark.key.id }} {{ mark.key.display }} {{ mark.key.sort }}</li>#}
+    {#    {% endfor %}#}
+{% endblock %}
+
+
+{% block javascript %}
+    {{ block.super }}
+    <script>
+
+        let x_keys, y_keys, subject_id;
+
+        x_keys = [
+            {% for x in x_keys %}
+                {
+                    id: {{ x.id }},
+                    display: "{{ x.display }}",
+                    val: "{{ x.val }}",
+                },
+            {% endfor %}
+        ];
+
+        y_keys = [
+            {% for y in y_keys %}
+                {
+                    id: {{ y.id }},
+                    display: "{{ y.display }}",
+                    val: "{{ y.val }}",
+                },
+            {% endfor %}
+        ];
+        {#console.log("x:", x_keys);#}
+        {#console.log("y:", y_keys);#}
+        subject_id = {{ subject_id }};
+    </script>
+    <script type="text/javascript" src="{% static 'common/js/input.js' %}"></script>
+    <script type="text/javascript" src="{% static 'journal/marks/marks_squad.js' %}"></script>
+    <link type="text/css" rel="stylesheet" href="{% static 'journal/marks/fixedColumns.bootstrap.min.css' %}"/>
+{% endblock %}

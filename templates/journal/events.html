@@ -1,0 +1,120 @@
+{% extends 'base.html' %}
+
+{% include 'journal/sidebar.html' %}
+
+
+{% block content %}
+
+    <div class="row">
+
+        <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
+            <div class="box box-solid">
+                <div class="box-header with-border">
+                    <h3 class="box-title">Список мероприятий</h3>
+                    <p></p>
+                    <div class="row">
+                    <div class="col-xs-12">
+
+                        <button class="btn pull-left" data-toggle="modal" data-target="#modalAddEvent"><i class="fa fa-plus"></i>
+                            Добавить мероприятие
+                        </button>
+                    </div>
+                    <p></p>
+                </div>
+                <div class="box-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped" id="students_table">
+                            <thead>
+                            <tr>
+                                <th>Название</th>
+                                <th>Дата</th>
+                                <th style="min-width: 180px">Участники</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+
+                            {% for wrap in forms %}
+                                <tr>
+                                    <td>
+                                        {{ wrap.event.name }} &nbsp;
+                                    </td>
+                                    <td>
+                                        {{ wrap.event.date }} &nbsp;
+                                    </td>
+                                    <td style="text-align: center">
+                                    <button class="btn" type="button" data-toggle="collapse" data-target="#collapseExample-{{ forloop.counter }}" aria-expanded="false" aria-controls="collapseExample">
+                                        <i class="fa fa-plus"></i>
+                                    </button>
+                                    <div style="text-align: left" class="collapse" id="collapseExample-{{ forloop.counter }}">
+                                        <div class="card card-body">
+                                           <p></p>
+                                           <p>
+                                            {% for p in wrap.participants %}
+                                                <b> {{ p.student.squad.code }} {{ p.student.short }} </b> <br>
+                                            {% endfor %}
+                                           </p>
+                                        </div>
+                                    </div>
+                                    </td>
+                                </tr>
+                                {#            {{ student.id }}#}
+                            {% endfor %}
+                            </tbody>
+                            <tfoot>
+                            <tr>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="modal fade" id="modalAddEvent" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header text-center">
+                    <h4 class="modal-title w-100 font-weight-bold">Новое мероприятие</h4>
+                </div>
+                <form action="{% url 'event_add' %}" method="post">
+                    <div class="modal-body mx-3">
+                        {% csrf_token %}
+                        {{ form }}
+                        <div class="md-form mb-5">
+                            <input placeholder="Название" name="name" type="text" id="id_name"
+                                   class="form-control">
+                        </div>
+                        <p></p>
+                        <div class="md-form mb-5">
+                            <label for="id_date">Дата</label>
+                            <input placeholder="Выберите дату" name="date" type="text" id="id_date" class="form-control datepicker">
+                        </div>
+                    </div>
+                    <div class="modal-footer d-flex justify-content-center">
+                        <button class="btn btn-default" type="submit" id="addPenaltySubmit">Сохранить</button>
+                        <button class="btn btn-default" data-dismiss="modal">Отмена</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block javascript %}
+    {{ block.super }}
+    <script>
+        $(function () {
+            $('.datepicker').datetimepicker(
+                {
+                    format: 'DD-MM-YYYY',
+                    locale: 'ru',
+                }
+            );
+        });
+    </script>
+{% endblock %}
